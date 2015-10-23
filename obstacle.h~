@@ -1,0 +1,7 @@
+#include <ncurses.h>
+typedef struct obstacles {
+	int fromx, fromy, tox, toy;
+} obstacles;
+void setobstaclepos(obstacles *, int, int, int , int);
+void drawobstacles(obstacles *, int );
+int checkforobstacles(obstacles *, int );
