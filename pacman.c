@@ -28,3 +28,55 @@ void printpacman(pacman *p) {
 	refresh();
 	return;
 }
+void initmonster(monster *m, pacman *p) {
+	m->p = p;
+	m->posx = 0;
+	m->posy = 0;
+	return;
+}
+void setmonsterpos(monster *m, int x, int y) {
+	m->posx = x;
+	m->posy = y;
+	return;
+}
+int getmonsterposx(monster *m) {
+	return m->posx;
+}
+int getmonsterposy(monster *m) {
+	return m->posy;
+}
+void printmonsters(monster *m, int n) {
+	int count;
+	for(count = 0; count < n; count++) {
+		mvprintw(m->posx, m->posy, "o");
+		mvprintw(m->posx - 1, m->posy, "o");
+		mvprintw(m->posx + 1, m->posy, "o");
+		mvprintw(m->posx, m->posy - 1, "m");
+		mvprintw(m->posx, m->posy + 1, "n");
+		mvprintw(m->posx - 1, m->posy - 1, "m");
+		mvprintw(m->posx + 1, m->posy + 1, "n");
+		mvprintw(m->posx - 1, m->posy + 1, "n");
+		mvprintw(m->posx + 1, m->posy - 1, "m");
+		m++;
+	}
+	refresh();
+	return;
+}
+int checkformonster(monster *m, int n) {
+	int count;
+	for(count = 0; count < n; count++) {
+		if(m->p->posy >= m->posy - 2 && m->p->posy <= m->posy + 2) {
+			if(m->p->posx == m->posx + 2 || m->p->posx == m->posx - 2) {
+				return 1;
+			}
+		}
+		if(m->p->posx >= m->posx - 2 && m->p->posx <= m->posx + 2) {
+			//for left
+			if(m->p->posy == m->posy + 2 || m->p->posy == m->posy - 2) {
+				return 1;
+			}
+		}
+		m++;
+	}
+	return 0;
+}
