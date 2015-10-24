@@ -125,6 +125,7 @@ int movepacman(pacman *p, obstacles *o) {
 			}
 			drawmap(o);
 			printpacman(p);
+			printmonster();
 			if(end == 0) {
 				return 0;
 			}
