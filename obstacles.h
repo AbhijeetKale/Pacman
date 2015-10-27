@@ -8,3 +8,4 @@ typedef struct obstacles {
 void setobstaclepos(obstacles *, int, int, int , int, int);
 void drawobstacles(obstacles *, int );
 int checkforobstacles(obstacles *o, int n, char control, pacman *);
+int monstercheckforobstacles(obstacles *, int, monster *);

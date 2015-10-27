@@ -14,6 +14,8 @@
 int row, column, choice, points = 0, obsno = 0, end;
 point pts[PTS];
 boundary b_ver, b_hor;
+monster m, m2;							// our monster
+pacman p;							// our pacman
 /*This function draws the score bard with the score and the level*/
 void drawscore(int update) {
 	static int score = 0;
@@ -77,64 +79,121 @@ void drawmap(obstacles *o) {
 * This function is the actual game which is played by the user
 * This function controls the movement of the pacman  and the monsters, and checks for obstacles and boundaries in their path.
 */
-int movepacman(pacman *p, obstacles *o, monster *m) {
+void setmonstermovement(monster *mon, obstacles *o) {
+	switch(getmonsterdirection(mon)) {
+			case UP:
+				if(getmonsterposx(mon) - 1 > getfrom(&b_ver) && monstercheckforobstacles(o, obsno, mon) == 1) {
+					clear();
+					setmonsterpos(mon, getmonsterposx(mon) - 1, getmonsterposy(mon));
+				}
+				else {
+					setmonsterdirection(mon, RIGHT);
+				}
+				break;
+			case DOWN:
+				if(getmonsterposx(mon) + 1 < getto(&b_ver) && monstercheckforobstacles(o, obsno, mon) == 1) {
+					clear();
+					setmonsterpos(mon, getmonsterposx(mon) + 1, getmonsterposy(mon));
+				}
+				else {
+					setmonsterdirection(mon, LEFT);
+				}
+				break;
+			case LEFT:
+				if(getmonsterposy(mon) - 2 > getfrom(&b_hor) && monstercheckforobstacles(o, obsno, mon) == 1) {
+					clear();
+					setmonsterpos(mon, getmonsterposx(mon), getmonsterposy(mon) - 1);
+				}
+				else {
+					setmonsterdirection(mon, UP);
+				}
+				break;
+			case RIGHT:
+				if(getmonsterposy(mon) + 2 < getto(&b_hor) && monstercheckforobstacles(o, obsno, mon) == 1) {
+					clear();
+					setmonsterpos(mon, getmonsterposx(mon), getmonsterposy(mon) + 1);
+				}
+				else {
+					setmonsterdirection(mon, DOWN);
+				}
+				break;
+		}
+	return;
+}
+int movepacman(obstacles *o) {
 	keypad(stdscr, TRUE);
 	char a;
 	int check;
 	//Controls of pacman
 	nodelay(stdscr, TRUE);
+	noecho();
 	while(1) {
 		a = getch();
-		noecho();
-		switch(a) {
-			case 'w':
-				if(getpacmanposx(p) - 1 > getfrom(&b_ver)) {
-					if(checkforobstacles(o, obsno,'w', p) == 1) {
-						clear();
-						setpacmanpos(p, getpacmanposx(p) - 1, getpacmanposy(p));
-					}
+		if(a != ERR) {
+			switch(a) {
+				case 'w':
+					setpacmandirection(&p, UP);
+					break;
+				case 's':
+					setpacmandirection(&p, DOWN);
+					break;
+				case 'a':
+					setpacmandirection(&p, LEFT);
+					break;
+				case 'd':
+					setpacmandirection(&p, RIGHT);
+					break;
+			}
+		}
+		setmonstermovement(&m, o);
+		setmonstermovement(&m2, o);
+		switch(getpacmandirection(&p)) {
+			case UP:
+				if(getpacmanposx(&p) - 1 > getfrom(&b_ver) && checkforobstacles(o, obsno,'w', &p) == 1) {
+					clear();
+					setpacmanpos(&p, getpacmanposx(&p) - 1, getpacmanposy(&p));
 				}
 				break;
-			case 'a':
-				if(getpacmanposy(p) - 1 > getfrom(&b_hor)) {
-					if(checkforobstacles(o, obsno,'a', p) == 1) {
-						clear();
-						setpacmanpos(p, getpacmanposx(p), getpacmanposy(p) - 1);
-					}
+			case LEFT:
+				if(getpacmanposy(&p) - 1 > getfrom(&b_hor) && checkforobstacles(o, obsno,'a', &p) == 1) {
+					clear();
+					setpacmanpos(&p, getpacmanposx(&p), getpacmanposy(&p) - 1);
 				}
 				break;
-			case 's':
-				if(getpacmanposx(p) + 1 < getto(&b_ver)) {
-					if(checkforobstacles(o, obsno,'s', p) ==1) {
-						clear();
-						setpacmanpos(p, getpacmanposx(p) + 1, getpacmanposy(p));
-					}
+			case DOWN:
+				if(getpacmanposx(&p) + 1 < getto(&b_ver) && checkforobstacles(o, obsno,'s', &p) ==1) {
+					clear();
+					setpacmanpos(&p, getpacmanposx(&p) + 1, getpacmanposy(&p));
 				}
 				break;
-			case 'd':
-				clear();
-				if(getpacmanposy(p) + 2	 < getto(&b_hor)) {
-					if(checkforobstacles(o, obsno,'d', p) == 1) {
-						clear();
-						setpacmanpos(p, getpacmanposx(p), getpacmanposy(p) + 1);
-					}
+			case RIGHT:
+				if(getpacmanposy(&p) + 2 < getto(&b_hor) && checkforobstacles(o, obsno,'d', &p) == 1) {
+					clear();
+					setpacmanpos(&p, getpacmanposx(&p), getpacmanposy(&p) + 1);
 				}
 				break;
 		}
-		if(checkformonster(m, 1) == 1) {
+		if(checkformonster(&m, 1) == 1 || checkformonster(&m2, 1) == 1) {
+			clear();
+			drawscore(check);
 			return LOOSE;
 		}
-		check = checkforpoints(pts, points, p);
+			
+		check = checkforpoints(pts, points, &p);
 		drawscore(check);
 		if(check) {
 			end--;
 		}
 		drawmap(o);
-		printpacman(p);
-		printmonsters(m, 1);
+		printpacman(&p);
 		if(end == 0) {
+			clear();
+			drawscore(check);
 			return WIN;
 		}
+		printmonsters(&m2);
+		printmonsters(&m);
+		napms(50);
 	}
 	nodelay(stdscr, FALSE);
 	keypad(stdscr, FALSE);
@@ -152,25 +211,28 @@ void setscreenpoints() {
 	return;
 }
 int main(int argc, char *argv[]) {
-	pacman p;							// our pacman
 	obstacles o[OBS];
-	monster m;							// our monster
 	initscr();							//initialzing the screen
 	choice = atoi(argv[1]); 					//setting the map	
 	getmaxyx(stdscr, row, column);					//getting the window size in rows and columns
-	initmonster(&m, &p);						//initalizing the monster;
+	initmonster(&m, &p);
+	initmonster(&m2, &p);						//initalizing the monster;
 	initpacman(&p);							//initializing the pacman
-	setscreenpoints();						//printig the points on the screen.
 	placeobstacles(o);						//Setting the obstacle points in the obstacle object
-	setmonsterpos(&m, row / 2, 2);					//Setting the pos of the monster
+	setscreenpoints();						//printig the points on the screen.
+	setmonsterpos(&m, row / 2 + 4, 2);
+	setmonsterpos(&m2, row / 2 - 4, 2);					//Setting the pos of the monster
+	setmonsterdirection(&m, DOWN);
+	setmonsterdirection(&m2, RIGHT);
 	setpacmanpos(&p, row / 2, getpointposy(pts + points / 2)); 	//setting the pacman to the screen.
 	start_color();
 	curs_set(FALSE);						//no cursor
 	drawmap(o);							//drawing maps with boundaries and obstacles
 	drawscore(0);							//printing the score board
 	printpacman(&p);						//drawing the pacman
-	printmonsters(&m, 1);						//jprinting the monsters
-	if(movepacman(&p, o, &m) == WIN) {					//moving the pacman
+	printmonsters(&m);
+	printmonsters(&m2);						//jprinting the monsters
+	if(movepacman(o) == WIN) {					//moving the pacman
 		mvprintw(row / 2, column / 2, "YOU WIN");		//printing after the game is over.
 		refresh();
 	}
