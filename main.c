@@ -14,8 +14,9 @@
 int row, column, choice, points = 0, obsno = 0, end;
 point pts[PTS];
 boundary b_ver, b_hor;
-monster m, m2;							// our monster
+monster m, m2;						// our monster
 pacman p;							// our pacman
+obstacles o[OBS];
 /*This function draws the score bard with the score and the level*/
 void drawscore(int update) {
 	static int score = 0;
@@ -49,29 +50,29 @@ void drawBoundary() {
 	return;
 }
 /*Sets the coordinates of the obstacles on the map*/
-void placeobstacles(obstacles *o) {
+void placeobstacles(obstacles *ok) {
 	int counter;
 	switch(choice) {
 		case 1:
 			for(counter = 12; counter < column - 8; counter += 8) {
-				setobstaclepos(o, row /4 + 3, counter, row - 3 - row / 2, counter, VER);
+				setobstaclepos(ok, row /4 + 3, counter, row - 3 - row / 2, counter, VER);
 				obsno++;
-				o++;
+				ok++;
 			}
 			for(counter = 12; counter < column - 8; counter += 8)  {
-				setobstaclepos(o, row - row / 2 + 1, counter, row - 3 - row / 4, counter, VER);
+				setobstaclepos(ok, row - row / 2 + 1, counter, row - 3 - row / 4, counter, VER);
 				obsno++;
-				o++;			
+				ok++;			
 			}
 		break;
 	}
 	return;
 }
 //Basic function which calls all other functions which print the map.
-void drawmap(obstacles *o) {
+void drawmap(obstacles *ok) {
 	drawBoundary();
 	printpoints(pts, points);
-	drawobstacles(o, obsno);
+	drawobstacles(ok, obsno);
 	refresh();
 	return;
 }
@@ -79,11 +80,12 @@ void drawmap(obstacles *o) {
 * This function is the actual game which is played by the user
 * This function controls the movement of the pacman  and the monsters, and checks for obstacles and boundaries in their path.
 */
-void setmonstermovement(monster *mon, obstacles *o) {
+void setmonstermovement(monster *mon, obstacles *ok) {
 	switch(getmonsterdirection(mon)) {
 			case UP:
-				if(getmonsterposx(mon) - 1 > getfrom(&b_ver) && monstercheckforobstacles(o, obsno, mon) == 1) {
+				if(getmonsterposx(mon) - 1 > getfrom(&b_ver) && monstercheckforobstacles(ok, obsno, mon) == 1) {
 					clear();
+					canseepacman(mon);
 					setmonsterpos(mon, getmonsterposx(mon) - 1, getmonsterposy(mon));
 				}
 				else {
@@ -91,8 +93,9 @@ void setmonstermovement(monster *mon, obstacles *o) {
 				}
 				break;
 			case DOWN:
-				if(getmonsterposx(mon) + 1 < getto(&b_ver) && monstercheckforobstacles(o, obsno, mon) == 1) {
+				if(getmonsterposx(mon) + 1 < getto(&b_ver) && monstercheckforobstacles(ok, obsno, mon) == 1) {
 					clear();
+					canseepacman(mon);
 					setmonsterpos(mon, getmonsterposx(mon) + 1, getmonsterposy(mon));
 				}
 				else {
@@ -100,8 +103,9 @@ void setmonstermovement(monster *mon, obstacles *o) {
 				}
 				break;
 			case LEFT:
-				if(getmonsterposy(mon) - 2 > getfrom(&b_hor) && monstercheckforobstacles(o, obsno, mon) == 1) {
+				if(getmonsterposy(mon) - 2 > getfrom(&b_hor) && monstercheckforobstacles(ok, obsno, mon) == 1) {
 					clear();
+					canseepacman(mon);
 					setmonsterpos(mon, getmonsterposx(mon), getmonsterposy(mon) - 1);
 				}
 				else {
@@ -109,8 +113,9 @@ void setmonstermovement(monster *mon, obstacles *o) {
 				}
 				break;
 			case RIGHT:
-				if(getmonsterposy(mon) + 2 < getto(&b_hor) && monstercheckforobstacles(o, obsno, mon) == 1) {
+				if(getmonsterposy(mon) + 2 < getto(&b_hor) && monstercheckforobstacles(ok, obsno, mon) == 1) {
 					clear();
+					canseepacman(mon);
 					setmonsterpos(mon, getmonsterposx(mon), getmonsterposy(mon) + 1);
 				}
 				else {
@@ -120,7 +125,7 @@ void setmonstermovement(monster *mon, obstacles *o) {
 		}
 	return;
 }
-int movepacman(obstacles *o) {
+int movepacman(obstacles *ok) {
 	keypad(stdscr, TRUE);
 	char a;
 	int check;
@@ -145,23 +150,24 @@ int movepacman(obstacles *o) {
 					break;
 			}
 		}
-		setmonstermovement(&m, o);
+		setmonstermovement(&m, o);	//Setting the direction wise coordinates of the monster
 		setmonstermovement(&m2, o);
+//Deciding the direction of pacman's movement  
 		switch(getpacmandirection(&p)) {
 			case UP:
-				if(getpacmanposx(&p) - 1 > getfrom(&b_ver) && checkforobstacles(o, obsno,'w', &p) == 1) {
+				if(getpacmanposx(&p) - 1 > getfrom(&b_ver) && checkforobstacles(ok, obsno,'w', &p) == 1) {
 					clear();
 					setpacmanpos(&p, getpacmanposx(&p) - 1, getpacmanposy(&p));
 				}
 				break;
 			case LEFT:
-				if(getpacmanposy(&p) - 1 > getfrom(&b_hor) && checkforobstacles(o, obsno,'a', &p) == 1) {
+				if(getpacmanposy(&p) - 1 > getfrom(&b_hor) && checkforobstacles(ok, obsno,'a', &p) == 1) {
 					clear();
 					setpacmanpos(&p, getpacmanposx(&p), getpacmanposy(&p) - 1);
 				}
 				break;
 			case DOWN:
-				if(getpacmanposx(&p) + 1 < getto(&b_ver) && checkforobstacles(o, obsno,'s', &p) ==1) {
+				if(getpacmanposx(&p) + 1 < getto(&b_ver) && checkforobstacles(ok, obsno,'s', &p) ==1) {
 					clear();
 					setpacmanpos(&p, getpacmanposx(&p) + 1, getpacmanposy(&p));
 				}
@@ -173,13 +179,13 @@ int movepacman(obstacles *o) {
 				}
 				break;
 		}
-		if(checkformonster(&m, 1) == 1 || checkformonster(&m2, 1) == 1) {
+		if(checkformonster(&m, 1) == 1 || checkformonster(&m2, 1) == 1) {	//Checking for collision with monster
 			clear();
 			drawscore(check);
 			return LOOSE;
 		}
 			
-		check = checkforpoints(pts, points, &p);
+		check = checkforpoints(pts, points, &p);	//Checking if the pacman has collected the points.
 		drawscore(check);
 		if(check) {
 			end--;
@@ -211,7 +217,6 @@ void setscreenpoints() {
 	return;
 }
 int main(int argc, char *argv[]) {
-	obstacles o[OBS];
 	initscr();							//initialzing the screen
 	choice = atoi(argv[1]); 					//setting the map	
 	getmaxyx(stdscr, row, column);					//getting the window size in rows and columns

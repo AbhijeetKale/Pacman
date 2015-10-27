@@ -26,3 +26,4 @@ int getmonsterposy(monster *);
 int checkformonster(monster *m, int n);
 int getmonsterdirection(monster *m);
 void setmonsterdirection(monster *m, int dir);
+int canseepacman(monster *m);

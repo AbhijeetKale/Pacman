@@ -92,3 +92,30 @@ void setmonsterdirection(monster *m, int dir) {
 	m->direction = dir;
 	return;
 }
+int canseepacman(monster *m) {
+	int dir;
+	if(m->p->posx >= m->posx - 1 && m->p->posx <= m->posx + 1) {
+		dir = m->posy - m->p->posy;
+		if(dir < 0) {
+			m->direction = RIGHT;
+			return RIGHT;	
+		}
+		else {
+			m->direction = LEFT;
+			return LEFT;
+		}
+	}
+	if(m->p->posy >= m->posy - 1 && m->p->posy <= m->posy + 1) {
+		dir = m->posx - m->p->posx;
+		if(dir < 0) {
+			m->direction = DOWN;
+			return DOWN;
+		}
+		else {
+			m->direction = UP;
+			return UP;
+		}
+	}
+	
+	return m->direction;
+}
