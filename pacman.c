@@ -119,3 +119,50 @@ int canseepacman(monster *m) {
 	
 	return m->direction;
 }
+void set_diff_monster_paths(monster *m, monster *m2) {
+	if(m->direction != m2->direction) {
+		return;
+	}
+	switch(m->direction) {
+		case UP:
+			if(m->posy >= m2->posy - 1 && m->posy <= m2->posy + 1) {
+				if(m->posx > m2->posx) {
+					m->direction = DOWN;
+				}
+				else {
+					m2->direction = DOWN;
+				}
+			}
+			break;
+		case DOWN:
+			if(m->posy >= m2->posy - 1 && m->posy <= m2->posy + 1) {
+				if(m->posx < m2->posx) {
+					m->direction = UP;
+				}
+				else {
+					m2->direction = UP;
+				}
+			}
+			break;
+		case LEFT:
+			if(m->posx >= m2->posx - 1 && m->posx <= m2->posx + 1) {
+				if(m->posy > m2->posy) {
+					m->direction = RIGHT;
+				}
+				else {
+					m2->direction = RIGHT;
+				}
+			}
+			break;
+		case RIGHT:
+			if(m->posx == m2->posx) {
+				if(m->posy < m2->posy) {
+					m->direction = LEFT;
+				}
+				else {
+					m2->direction = LEFT;
+				}
+			}
+			break;
+	}
+}

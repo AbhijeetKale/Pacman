@@ -8,6 +8,6 @@ point.o: point.h point.c
 	cc -Wall -c point.c
 pacman.o: pacman.c pacman.h
 	cc -Wall -c pacman.c
-bounds.o: bounds.h point.h
+bounds.o: bounds.h
 	cc -Wall -c bounds.c
 

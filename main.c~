@@ -1,11 +1,14 @@
 #include <ncurses.h>
 #include <stdlib.h>
 #include "bounds.h"
+#include <menu.h>
 #include "obstacles.h"
 #define PTS 300
-#define OBS 20
+#define OBS 50
 #define WIN 1
 #define LOOSE 0
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
+#define CTRLD 4
 /* row and column for the dimensions of the window
 * Choice is the map id which is assigned by the main arguement
 * Points is max possible score than can be scored in this round
@@ -15,8 +18,15 @@ int row, column, choice, points = 0, obsno = 0, end;
 point pts[PTS];
 boundary b_ver, b_hor;
 monster m, m2;						// our monster
+int load_game = 0;
 pacman p;							// our pacman
+char load_file[16];
 obstacles o[OBS];
+char *menu[] = {
+			"Start Game",
+			"Load Game",
+			"Exit"
+		};
 /*This function draws the score bard with the score and the level*/
 void drawscore(int update) {
 	static int score = 0;
@@ -60,7 +70,7 @@ void placeobstacles(obstacles *ok) {
 				ok++;
 			}
 			for(counter = 12; counter < column - 8; counter += 8)  {
-				setobstaclepos(ok, row - row / 2 + 1, counter, row - 3 - row / 4, counter, VER);
+				setobstaclepos(ok, row - row / 2 + 3, counter, row - 3 - row / 4, counter, VER);
 				obsno++;
 				ok++;			
 			}
@@ -150,9 +160,28 @@ int movepacman(obstacles *ok) {
 					break;
 			}
 		}
+		if(a == 'p') {
+			init_pair(5, COLOR_BLACK, COLOR_WHITE);
+			mvprintw(3, 3, "Press y/n for saving game or c to continue");
+			attron(COLOR_PAIR(5));
+			refresh();
+			attroff(COLOR_PAIR(5));
+			while((a = getchar())) {
+				switch(a) {
+					case 'y':
+						break;
+					case 'n':
+						break;
+				}
+				if(a == 'c') {
+					break;
+				}
+			}
+		}
 		setmonstermovement(&m, o);	//Setting the direction wise coordinates of the monster
 		setmonstermovement(&m2, o);
-//Deciding the direction of pacman's movement  
+		set_diff_monster_paths(&m, &m2);
+		//Deciding the direction of pacman's movement  
 		switch(getpacmandirection(&p)) {
 			case UP:
 				if(getpacmanposx(&p) - 1 > getfrom(&b_ver) && checkforobstacles(ok, obsno,'w', &p) == 1) {
@@ -216,20 +245,74 @@ void setscreenpoints() {
 	end = points;
 	return;
 }
-int main(int argc, char *argv[]) {
-	initscr();							//initialzing the screen
-	choice = atoi(argv[1]); 					//setting the map	
+void menuinflater() {
+	ITEM **my_items;
+	int c, p = 0;
+	MENU *my_menu;
+	int n_menu, i;
+	noecho();
+	keypad(stdscr, TRUE);
+	n_menu = ARRAY_SIZE(menu);
+	my_items = (ITEM **)calloc(n_menu + 1, sizeof(ITEM *));
+	for(i = 0; i < n_menu; ++i)
+		my_items[i] = new_item(menu[i], NULL);
+	my_items[n_menu] = (ITEM *)NULL;
+	my_menu = new_menu((ITEM **)my_items);
+	post_menu(my_menu);
+	refresh();
+	while((c = getch()) != KEY_F(1)) {
+		switch(c) {
+			case KEY_DOWN:
+				p++;
+				menu_driver(my_menu, REQ_DOWN_ITEM);
+				break;
+			case KEY_UP:
+				p--;
+				menu_driver(my_menu, REQ_UP_ITEM);
+			case 10:
+				clear();
+				switch(p) {
+					case 0:
+						load_game = 0;
+						return;
+					case 1:
+						echo();
+						printw("Enter the name of the saved file : ");
+						getstr(load_file);
+						clear();
+						load_game = 1;
+						return;
+					case 2:
+						endwin();
+						exit(0);
+				}	
+				break;	
+		}
+	}
+	free_item(my_items[0]);
+	free_item(my_items[1]);
+	free_menu(my_menu);
+}
+int startgame() {
+	clear();
 	getmaxyx(stdscr, row, column);					//getting the window size in rows and columns
 	initmonster(&m, &p);
 	initmonster(&m2, &p);						//initalizing the monster;
 	initpacman(&p);							//initializing the pacman
 	placeobstacles(o);						//Setting the obstacle points in the obstacle object
-	setscreenpoints();						//printig the points on the screen.
-	setmonsterpos(&m, row / 2 + 4, 2);
-	setmonsterpos(&m2, row / 2 - 4, 2);					//Setting the pos of the monster
-	setmonsterdirection(&m, DOWN);
-	setmonsterdirection(&m2, RIGHT);
-	setpacmanpos(&p, row / 2, getpointposy(pts + points / 2)); 	//setting the pacman to the screen.
+	if(load_game == 1) {
+		printw("%s", load_file);
+		refresh();
+		getch();
+	}
+	else if(load_game == 0) {
+		setscreenpoints();						//printig the points on the screen.
+		setmonsterpos(&m, row / 2 + 4, 2);
+		setmonsterpos(&m2, row / 2 - 4, 2);					//Setting the pos of the monster
+		setmonsterdirection(&m, DOWN);
+		setmonsterdirection(&m2, RIGHT);
+		setpacmanpos(&p, row / 2, getpointposy(pts + points / 2)); 	//setting the pacman to the screen.
+	}
 	start_color();
 	curs_set(FALSE);						//no cursor
 	drawmap(o);							//drawing maps with boundaries and obstacles
@@ -237,7 +320,13 @@ int main(int argc, char *argv[]) {
 	printpacman(&p);						//drawing the pacman
 	printmonsters(&m);
 	printmonsters(&m2);						//jprinting the monsters
-	if(movepacman(o) == WIN) {					//moving the pacman
+	return movepacman(o);
+}
+int main(int argc, char *argv[]) {
+	initscr();							//initialzing the screen
+	choice = atoi(argv[1]); 					//setting the map	
+	x: menuinflater();	
+	if(startgame() == WIN) {					//moving the pacman
 		mvprintw(row / 2, column / 2, "YOU WIN");		//printing after the game is over.
 		refresh();
 	}
@@ -245,8 +334,9 @@ int main(int argc, char *argv[]) {
 		mvprintw(row / 2, column / 2, "YOU LOOSE");		//printing after the game is over.
 		refresh();
 	}
+	nodelay(stdscr, FALSE);
 	while(1) {
-		if(getch() == 'e') {
+		if(getch() == 'r') {
 			break;
 		}
 	}

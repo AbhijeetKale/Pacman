@@ -6,10 +6,6 @@ typedef struct point {
 } point;
 void printpoints(point *p, int n);
 void setpointpos(point *p, int x, int y);
-int getpointposx(point *p) {
-	return p->posx;
-}
-int getpointposy(point *p) {
-	return p->posy;
-}
+int getpointposx(point *p);
+int getpointposy(point *p);
 int checkforpoints(point *p, int n, pacman *pac);
