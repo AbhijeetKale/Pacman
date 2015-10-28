@@ -1,7 +1,7 @@
 #include "point.h"
 void printpoints(point *p, int n) {
 	int count;
-	init_pair(2, COLOR_BLACK, COLOR_RED);
+	init_pair(2, COLOR_BLACK, COLOR_GREEN);
 	attron(COLOR_PAIR(2));
 	for(count = 0; count < n; count++) {
 		if(p->activate == 1) {

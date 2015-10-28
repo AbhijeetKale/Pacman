@@ -13,6 +13,12 @@ void printpoints(point *p, int n) {
 	refresh();
 	return;
 }
+int getpointposx(point *p) {
+	return p->posx;
+}
+int getpointposy(point *p) {
+	return p->posy;
+}
 void setpointpos(point *p, int x, int y) {
 	p->posx = x;
 	p->posy = y;

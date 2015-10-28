@@ -24,6 +24,8 @@ int getpacmandirection(pacman *p) {
 	return p->direction;
 }
 void printpacman(pacman *p) {
+	init_pair(10, COLOR_BLACK, COLOR_YELLOW);
+	attron(COLOR_PAIR(10));
 	mvprintw(p->posx, p->posy, "a");
 	mvprintw(p->posx - 1, p->posy, "a");
 	mvprintw(p->posx + 1, p->posy, "a");
@@ -34,6 +36,7 @@ void printpacman(pacman *p) {
 	mvprintw(p->posx - 1, p->posy + 1, "c");
 	mvprintw(p->posx + 1, p->posy - 1, "p");
 	refresh();
+	attroff(COLOR_PAIR(10));
 	return;
 }
 void initmonster(monster *m, pacman *p) {
@@ -55,6 +58,8 @@ int getmonsterposy(monster *m) {
 	return m->posy;
 }
 void printmonsters(monster *m) {
+	init_pair(3, COLOR_BLACK, COLOR_RED);
+	attron(COLOR_PAIR(3));
 	mvprintw(m->posx, m->posy, "o");
 	mvprintw(m->posx - 1, m->posy, "o");
 	mvprintw(m->posx + 1, m->posy, "o");
@@ -65,6 +70,7 @@ void printmonsters(monster *m) {
 	mvprintw(m->posx - 1, m->posy + 1, "n");
 	mvprintw(m->posx + 1, m->posy - 1, "m");
 	refresh();
+	attroff(COLOR_PAIR(3));
 	return;
 }
 int checkformonster(monster *m, int n) {
