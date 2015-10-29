@@ -24,7 +24,7 @@ int getpacmandirection(pacman *p) {
 	return p->direction;
 }
 void printpacman(pacman *p) {
-	init_pair(10, COLOR_BLACK, COLOR_GREEN);
+	init_pair(10, COLOR_BLACK, COLOR_YELLOW);
 	attron(COLOR_PAIR(10));
 	mvprintw(p->posx, p->posy, "a");
 	mvprintw(p->posx - 1, p->posy, "a");
@@ -171,4 +171,28 @@ void set_diff_monster_paths(monster *m, monster *m2) {
 			}
 			break;
 	}
+}
+void hidepacman(pacman *m) {
+	mvprintw(m->posx, m->posy, " ");
+	mvprintw(m->posx - 1, m->posy, " ");
+	mvprintw(m->posx + 1, m->posy, " ");
+	mvprintw(m->posx, m->posy - 1, " ");
+	mvprintw(m->posx, m->posy + 1, " ");
+	mvprintw(m->posx - 1, m->posy - 1, " ");
+	mvprintw(m->posx + 1, m->posy + 1, " ");
+	mvprintw(m->posx - 1, m->posy + 1, " ");
+	mvprintw(m->posx + 1, m->posy - 1, " ");
+	refresh();
+}
+void hidemonster(monster *m) {
+	mvprintw(m->posx, m->posy, " ");
+	mvprintw(m->posx - 1, m->posy, " ");
+	mvprintw(m->posx + 1, m->posy, " ");
+	mvprintw(m->posx, m->posy - 1, " ");
+	mvprintw(m->posx, m->posy + 1, " ");
+	mvprintw(m->posx - 1, m->posy - 1, " ");
+	mvprintw(m->posx + 1, m->posy + 1, " ");
+	mvprintw(m->posx - 1, m->posy + 1, " ");
+	mvprintw(m->posx + 1, m->posy - 1, " ");
+	refresh();
 }

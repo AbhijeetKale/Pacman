@@ -172,3 +172,27 @@ void set_diff_monster_paths(monster *m, monster *m2) {
 			break;
 	}
 }
+void hidepacman(pacman *m) {
+	mvprintw(m->posx, m->posy, " ");
+	mvprintw(m->posx - 1, m->posy, " ");
+	mvprintw(m->posx + 1, m->posy, " ");
+	mvprintw(m->posx, m->posy - 1, " ");
+	mvprintw(m->posx, m->posy + 1, " ");
+	mvprintw(m->posx - 1, m->posy - 1, " ");
+	mvprintw(m->posx + 1, m->posy + 1, " ");
+	mvprintw(m->posx - 1, m->posy + 1, " ");
+	mvprintw(m->posx + 1, m->posy - 1, " ");
+	refresh();
+}
+void hidemonster(monster *m) {
+	mvprintw(m->posx, m->posy, " ");
+	mvprintw(m->posx - 1, m->posy, " ");
+	mvprintw(m->posx + 1, m->posy, " ");
+	mvprintw(m->posx, m->posy - 1, " ");
+	mvprintw(m->posx, m->posy + 1, " ");
+	mvprintw(m->posx - 1, m->posy - 1, " ");
+	mvprintw(m->posx + 1, m->posy + 1, " ");
+	mvprintw(m->posx - 1, m->posy + 1, " ");
+	mvprintw(m->posx + 1, m->posy - 1, " ");
+	refresh();
+}

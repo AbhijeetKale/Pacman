@@ -77,3 +77,47 @@ int checkforobstacles(obstacles *o, int n, char control, pacman *p) {
 	}
 	return obs;
 }
+int monstercheckforobstacles(obstacles *o, int n, monster *m) {
+	int obs = 1, count, done;
+	for(count = 0; count < n; count++) {
+		switch(m->direction) {
+			case UP:
+				if(getmonsterposy(m) + 1 >= o->fromy - 1 && getmonsterposy(m) - 1 <= o->toy + 1) {
+					if(getmonsterposx(m) - 2 <= o->tox) {
+						obs = 0;
+						done = 1;
+					}
+				}
+				break;
+			case DOWN:
+				if(getmonsterposy(m) + 1 >= o->fromy - 1 && getmonsterposy(m) - 1 <= o->toy + 1) {
+					if(getmonsterposx(m) + 2 <= o->fromx + 1) {
+						obs = 0;
+						done = 1;
+					}
+				}
+				break;
+			case RIGHT:
+				if(getmonsterposx(m) + 1 >= o->fromx && getmonsterposx(m) - 1 <= o->tox) {
+					if(getmonsterposy(m) + 2 == o->fromy - 1) {
+							obs = 0;
+							done = 1;
+					}
+				}
+				break;
+			case LEFT:
+				if(getmonsterposx(m) + 1 >= o->fromx && getmonsterposx(m) - 1 <= o->tox) {
+					if(getmonsterposy(m) - 2 == o->fromy + 1) {
+							obs = 0;
+							done = 1;
+					}
+				}
+				break;
+		}
+		if(done == 1) {
+			break;
+		}
+		o++;
+	}
+	return obs;
+}

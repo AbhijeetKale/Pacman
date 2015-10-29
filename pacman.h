@@ -12,6 +12,7 @@ int getpacmanposy(pacman *p);
 void setpacmandirection(pacman *p, int direction);
 void setpacmanpos(pacman *, int, int);
 void printpacman(pacman *);
+void hidepacman(pacman *p);
 int getpacmandirection(pacman *p);
 typedef struct monster {
 	int posx, posy;
@@ -28,3 +29,4 @@ int getmonsterdirection(monster *m);
 void setmonsterdirection(monster *m, int dir);
 int canseepacman(monster *m);
 void set_diff_monster_paths(monster *m, monster *m2);
+void hidemonster(monster *p);

@@ -7,6 +7,11 @@ void printpoints(point *p, int n) {
 		if(p->activate == 1) {
 			mvprintw(p->posx, p->posy, "+");
 		}
+		else {
+			attroff(COLOR_PAIR(2));
+			mvprintw(p->posx, p->posy, " ");
+			attron(COLOR_PAIR(2));
+		}
 		p++;
 	}
 	attroff(COLOR_PAIR(2));
