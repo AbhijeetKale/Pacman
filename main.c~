@@ -17,7 +17,7 @@
 int row, column, choice = 1, points = 0, obsno = 0, end;
 point pts[PTS];
 boundary b_ver, b_hor;
-monster m, m2, m3, m4;						// our monster
+monster m, m2, m3;						// our monster
 int load_game = 0;
 pacman p;							// our pacman
 char load_file[16];
@@ -191,8 +191,8 @@ int movepacman(obstacles *ok) {
 		}
 		if(a == 'p') {
 			init_pair(5, COLOR_BLACK, COLOR_WHITE);
-			mvprintw(3, 3, "Press y/n for saving game or c to continue");
 			attron(COLOR_PAIR(5));
+			mvprintw(3, 3, "Press y/n for saving game or c to continue");
 			refresh();
 			attroff(COLOR_PAIR(5));
 			while((a = getchar())) {
@@ -203,6 +203,7 @@ int movepacman(obstacles *ok) {
 						break;
 				}
 				if(a == 'c') {
+					mvprintw(3, 3, "						");
 					break;
 				}
 			}
@@ -210,13 +211,9 @@ int movepacman(obstacles *ok) {
 		setmonstermovement(&m, o);	//Setting the direction wise coordinates of the monster
 		setmonstermovement(&m2, o);
 		setmonstermovement(&m3, o);
-		setmonstermovement(&m4, o);
 		set_diff_monster_paths(&m, &m2);
 		set_diff_monster_paths(&m, &m3);
-		set_diff_monster_paths(&m, &m4);
 		set_diff_monster_paths(&m2, &m3);
-		set_diff_monster_paths(&m2, &m4);
-		set_diff_monster_paths(&m3, &m4);
 		//Deciding the direction of pacman's movement  
 		switch(dir) {
 			case UP:
@@ -260,7 +257,7 @@ int movepacman(obstacles *ok) {
 				}
 				break;
 		}
-		if(checkformonster(&m, 1) == 1 || checkformonster(&m2, 1) == 1 || checkformonster(&m3, 1) == 1 || checkformonster(&m4, 1) == 1) {	//Checking for collision with monster
+		if(checkformonster(&m, 1) == 1 || checkformonster(&m2, 1) == 1 || checkformonster(&m3, 1) == 1) {	//Checking for collision with monster
 			drawscore(check);
 			return LOOSE;
 		}
@@ -280,7 +277,6 @@ int movepacman(obstacles *ok) {
 		printmonsters(&m2);
 		printmonsters(&m);
 		printmonsters(&m3);
-		printmonsters(&m4);
 		napms(50);
 	}
 	nodelay(stdscr, FALSE);
@@ -352,7 +348,6 @@ int startgame() {
 	initmonster(&m, &p);
 	initmonster(&m2, &p);						//initalizing the monster;
 	initmonster(&m3	, &p);
-	initmonster(&m4, &p);						//initalizing the monster;
 	initpacman(&p);							//initializing the pacman
 	placeobstacles(o);						//Setting the obstacle points in the obstacle object
 	if(load_game == 1) {
@@ -364,12 +359,10 @@ int startgame() {
 		setscreenpoints();						//printig the points on the screen.
 		setmonsterpos(&m, row / 2 + 4, 2);
 		setmonsterpos(&m2, row / 2 - 4, 2);					//Setting the pos of the monster
-		setmonsterpos(&m3, row / 2 - 2, column - 2);
-		setmonsterpos(&m4, row / 2 - 4, column - 2);
+		setmonsterpos(&m3, row / 2, column - 2);
 		setmonsterdirection(&m, DOWN);
 		setmonsterdirection(&m2, RIGHT);
 		setmonsterdirection(&m3, LEFT);
-		setmonsterdirection(&m4, RIGHT);
 		setpacmanpos(&p, row / 2 + 4, getpointposy(pts + points / 2)); 	//setting the pacman to the screen.
 	}
 	start_color();
@@ -380,12 +373,12 @@ int startgame() {
 	printmonsters(&m);
 	printmonsters(&m2);						//jprinting the monsters
 	printmonsters(&m3);
-	printmonsters(&m4);
 	return movepacman(o);
 }
 int main(int argc, char *argv[]) {
 	initscr();							//initialzing the screen
 	restart : menuinflater();	
+	attron(COLOR_PAIR(5));
 	if(startgame() == WIN) {					//moving the pacman
 		clear();
 		mvprintw(row / 2 + 5, column / 2 - 8, "Press r to return to menu.");
@@ -394,10 +387,11 @@ int main(int argc, char *argv[]) {
 	}
 	else {
 		clear();
-		mvprintw(row / 2 + 5, column / 2 - 8, "Press r to return to menu.");
+		mvprintw(row / 4 + 5, column / 2 - 8, "Press r to return to menu.");
 		mvprintw(row / 2, column / 2, "YOU LOST");		//printing after the game is over.
 		drawscore(0);
 	}
+	attroff(COLOR_PAIR(5));
 	nodelay(stdscr, FALSE);
 	while(1) {
 		char t = getch();
