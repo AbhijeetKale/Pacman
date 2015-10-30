@@ -14,13 +14,12 @@
 * Points is max possible score than can be scored in this round
 * Obsno are the number of pbstacles
 */
-int row, column, choice = 1, points = 0, obsno = 0, end;
+int row, column, choice = 1, points = 0, obsno = 0, end, score = 0;
 point pts[PTS];
 boundary b_ver, b_hor;
 monster m, m2, m3;						// our monster
 int load_game = 0;
 pacman p;							// our pacman
-char load_file[16];
 obstacles o[OBS];
 char *menu[] = {
 			"Start Game",
@@ -29,13 +28,7 @@ char *menu[] = {
 		};
 /*This function draws the score bard with the score and the level*/
 void drawscore(int update) {
-	static int score = 0;
-	if(update == -1) {
-		score = 0;
-	}
-	else {
-		score += update;
-	}
+	score += update;
 	mvprintw(2, column / 2, "SCORE : %d", score);
 	mvprintw(4, column / 2, "LEVEL : %d", choice);
 	refresh();
@@ -166,6 +159,7 @@ void continuemovingpac(obstacles *ok) {
 }
 int movepacman(obstacles *ok) {
 	char a;
+	FILE *fp;
 	int check, dir;
 	//Controls of pacman
 	nodelay(stdscr, TRUE);
@@ -198,6 +192,23 @@ int movepacman(obstacles *ok) {
 			while((a = getchar())) {
 				switch(a) {
 					case 'y':
+						fp = fopen("Pacsave.dat", "w");
+						fwrite(&row, sizeof(int), 1, fp);
+						fwrite(&column, sizeof(int), 1, fp);
+						fwrite(&choice, sizeof(int), 1, fp);
+						fwrite(&points, sizeof(int), 1, fp);
+						fwrite(&obsno, sizeof(int), 1, fp);
+						fwrite(&end, sizeof(int), 1, fp);
+						fwrite(&score, sizeof(int), 1, fp);
+						fwrite(pts, sizeof(point), PTS, fp);
+						fwrite(o, sizeof(obstacles), OBS, fp);
+						fwrite(&m, sizeof(monster), 1, fp);
+						fwrite(&m2, sizeof(monster), 1, fp);
+						fwrite(&m3, sizeof(monster), 1, fp);
+						fwrite(&p, sizeof(pacman), 1, fp);
+						fclose(fp);
+						endwin();
+						exit(0);
 						break;
 					case 'n':
 						break;
@@ -325,9 +336,6 @@ void menuinflater() {
 						load_game = 0;
 						return;
 					case 1:
-						echo();
-						printw("Enter the name of the saved file : ");
-						getstr(load_file);
 						clear();
 						load_game = 1;
 						return;
@@ -351,9 +359,26 @@ int startgame() {
 	initpacman(&p);							//initializing the pacman
 	placeobstacles(o);						//Setting the obstacle points in the obstacle object
 	if(load_game == 1) {
-		printw("%s", load_file);
-		refresh();
-		getch();
+		fp = fopen("Pacsave.dat", "r");
+		if(fp == NULL) {
+		printw("No saved file present.");
+		endwin();
+		exit(0);
+		}
+		fread(&row, sizeof(int), 1, fp);
+		fread(&column, sizeof(int), 1, fp);
+		fread(&choice, sizeof(int), 1, fp);
+		fread(&points, sizeof(int), 1, fp);
+		fread(&obsno, sizeof(int), 1, fp);
+		fread(&end, sizeof(int), 1, fp);
+		fread(&score, sizeof(int), 1, fp);
+		fread(pts, sizeof(point), PTS, fp);
+		fread(o, sizeof(obstacles), OBS, fp);
+		fread(&m, sizeof(monster), 1, fp);
+		fread(&m2, sizeof(monster), 1, fp);
+		fread(&m3, sizeof(monster), 1, fp);
+		fread(&p, sizeof(pacman), 1, fp);
+		fclose(fp);
 	}
 	else if(load_game == 0) {
 		setscreenpoints();						//printig the points on the screen.
@@ -368,7 +393,7 @@ int startgame() {
 	start_color();
 	curs_set(FALSE);						//no cursor
 	drawmap(o);							//drawing maps with boundaries and obstacles
-	drawscore(-1);							//printing the score board
+	drawscore(0);							//printing the score board
 	printpacman(&p);						//drawing the pacman
 	printmonsters(&m);
 	printmonsters(&m2);						//jprinting the monsters
@@ -395,9 +420,10 @@ int main(int argc, char *argv[]) {
 	nodelay(stdscr, FALSE);
 	while(1) {
 		char t = getch();
-		if(t == 'r') {
+		if(t == 'r') {		//restarting the game and resetting all the variables used in the game
 			clear();
 			choice = 1;
+			score = 0;
 			points = 0;
 			obsno = 0;
 			goto restart;
