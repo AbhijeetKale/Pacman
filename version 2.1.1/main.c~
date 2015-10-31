@@ -190,7 +190,7 @@ int movepacman(obstacles *ok) {
 		if(a == 'p') {
 			init_pair(5, COLOR_BLACK, COLOR_WHITE);
 			attron(COLOR_PAIR(5));
-			mvprintw(3, 3, "Press y/n for saving game or Enter	 to continue");
+			mvprintw(3, 3, "Press y/n for saving game or Enter to continue");
 			refresh();
 			attroff(COLOR_PAIR(5));
 			while((a = getchar())) {
