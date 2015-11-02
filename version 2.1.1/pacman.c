@@ -8,6 +8,7 @@ void initpacman(pacman *p) {
 int getpacmanposx(pacman *p) {
 	return p->posx;
 }
+//sets the direction of the pacman
 void setpacmandirection(pacman *p, int direction) {
 	p->direction = direction;
 	return;
@@ -15,6 +16,7 @@ void setpacmandirection(pacman *p, int direction) {
 int getpacmanposy(pacman *p) {
 	return p->posy;
 }
+//sets the pacman postion
 void setpacmanpos(pacman *p, int x, int y) {
 	p->posx = x;
 	p->posy = y;
@@ -23,6 +25,7 @@ void setpacmanpos(pacman *p, int x, int y) {
 int getpacmandirection(pacman *p) {
 	return p->direction;
 }
+//prints the pacman
 void printpacman(pacman *p) {
 	init_pair(10, COLOR_BLACK, COLOR_YELLOW);
 	attron(COLOR_PAIR(10));
@@ -46,6 +49,7 @@ void initmonster(monster *m, pacman *p) {
 	m->direction = LEFT;
 	return;
 }
+//sets the monster position
 void setmonsterpos(monster *m, int x, int y) {
 	m->posx = x;
 	m->posy = y;
@@ -57,6 +61,7 @@ int getmonsterposx(monster *m) {
 int getmonsterposy(monster *m) {
 	return m->posy;
 }
+//printsmonster
 void printmonsters(monster *m) {
 	init_pair(3, COLOR_BLACK, COLOR_RED);
 	attron(COLOR_PAIR(3));
@@ -73,6 +78,7 @@ void printmonsters(monster *m) {
 	attroff(COLOR_PAIR(3));
 	return;
 }
+//checks if the pacman and monster have collided
 int checkformonster(monster *m, int n) {
 	int count;
 	for(count = 0; count < n; count++) {
@@ -98,6 +104,7 @@ void setmonsterdirection(monster *m, int dir) {
 	m->direction = dir;
 	return;
 }
+//visibilty power given to the monster for detecting pacman moves.
 int canseepacman(monster *m) {
 	int dir;
 	if(m->p->posx >= m->posx - 1 && m->p->posx <= m->posx + 1) {
@@ -125,6 +132,7 @@ int canseepacman(monster *m) {
 	
 	return m->direction;
 }
+//Repelling the monsters if they travel in the same direction in the same path
 void set_diff_monster_paths(monster *m, monster *m2) {
 	if(m->direction != m2->direction) {
 		return;
@@ -172,6 +180,7 @@ void set_diff_monster_paths(monster *m, monster *m2) {
 			break;
 	}
 }
+//Used with printpacmans hiding the initial pacman position in order to create animated effect.
 void hidepacman(pacman *m) {
 	mvprintw(m->posx, m->posy, " ");
 	mvprintw(m->posx - 1, m->posy, " ");
@@ -184,6 +193,7 @@ void hidepacman(pacman *m) {
 	mvprintw(m->posx + 1, m->posy - 1, " ");
 	refresh();
 }
+//Used with printmonster hiding the initial monster position in order to create animated effect.
 void hidemonster(monster *m) {
 	mvprintw(m->posx, m->posy, " ");
 	mvprintw(m->posx - 1, m->posy, " ");

@@ -1,5 +1,6 @@
 #include "obstacles.h"
 extern int choice;
+//Setting the coordinates of the obstacles
 void setobstaclepos(obstacles *o, int x1, int y1, int x2, int y2, int type) {
 	o->fromx = x1;
 	o->fromy = y1;
@@ -8,6 +9,7 @@ void setobstaclepos(obstacles *o, int x1, int y1, int x2, int y2, int type) {
 	o->type = type;
 	return;
 }
+//printing the obstacles
 void drawobstacles(obstacles *o, int n) {
 	int count, counter, count2;
 	init_pair(1, COLOR_YELLOW, COLOR_WHITE);
@@ -32,6 +34,7 @@ void drawobstacles(obstacles *o, int n) {
 	attroff(COLOR_PAIR(1));
 	return;
 }
+//checking obstacles in path for pacman
 int checkforobstacles(obstacles *o, int n, char control, pacman *p) {
 	int obs = 1;
 	int count, done = 0;
@@ -77,6 +80,7 @@ int checkforobstacles(obstacles *o, int n, char control, pacman *p) {
 	}
 	return obs;
 }
+//checking the obstalces in path of the monster
 int monstercheckforobstacles(obstacles *o, int n, monster *m) {
 	int obs = 1, count, done;
 	for(count = 0; count < n; count++) {

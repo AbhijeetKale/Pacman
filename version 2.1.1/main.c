@@ -85,6 +85,7 @@ void drawmap(obstacles *ok) {
 * This function controls the movement of the pacman  and the monsters, and checks for obstacles and boundaries in their path.
 */
 void setmonstermovement(monster *mon, obstacles *ok) {
+	//Visibilty of the pacman to the monsters
 	switch(getmonsterdirection(mon)) {
 			case UP:
 				if(getmonsterposx(mon) - 1 > getfrom(&b_ver) && monstercheckforobstacles(ok, obsno, mon) == 1) {
@@ -129,7 +130,8 @@ void setmonstermovement(monster *mon, obstacles *ok) {
 		}
 	return;
 }
-void continuemovingpac(obstacles *ok) {
+void continuemovingpac(obstacles *ok) {	
+	//Moving the pacman in the same dir if the new dir contains obstacle
 	switch(getpacmandirection(&p)) {
 		case UP:
 			if(getpacmanposx(&p) - 1 > getfrom(&b_ver) && checkforobstacles(ok, obsno,'w', &p) == 1) {
@@ -162,12 +164,13 @@ int movepacman(obstacles *ok) {
 	FILE *fp;
 	int check, dir = p.direction;
 	//Controls of pacman
-	nodelay(stdscr, TRUE);
+	nodelay(stdscr, TRUE);		//used for continuous movement of the monsters
 	noecho();
 	keypad(stdscr, TRUE);
 	while(1) {
 		a = getch();
 		if(a != ERR) {
+			//Setting the direction of movement on input to getch
 			switch(a) {
 				case KEY_UP:
 					dir = UP;
@@ -187,15 +190,15 @@ int movepacman(obstacles *ok) {
 			load_game = 0;
 			a = 'p';
 		}
-		if(a == 'p') {
+		if(a == 'p') {		//Pausing the game
 			init_pair(5, COLOR_BLACK, COLOR_WHITE);
 			attron(COLOR_PAIR(5));
-			mvprintw(3, 3, "Press y/n for saving game or Enter	 to continue");
+			mvprintw(3, 3, "Press y/n for saving game or p to continue");
 			refresh();
 			attroff(COLOR_PAIR(5));
 			while((a = getchar())) {
 				switch(a) {
-					case 'y':
+					case 'y':	//Saving the game and exiting
 						fp = fopen("Pacsave.dat", "w");
 						fwrite(&row, sizeof(int), 1, fp);
 						fwrite(&column, sizeof(int), 1, fp);
@@ -213,12 +216,12 @@ int movepacman(obstacles *ok) {
 						fclose(fp);
 						endwin();
 						exit(0);
-						break;
 					case 'n':
-						break;
+						endwin();
+						exit(0);
 				}
-				if(a == 10) {
-					mvprintw(3, 3, "						");
+				if(a == 'p') {	//unpause
+					mvprintw(3, 3, "					");
 					break;
 				}
 			}
@@ -226,7 +229,7 @@ int movepacman(obstacles *ok) {
 		setmonstermovement(&m, o);	//Setting the direction wise coordinates of the monster
 		setmonstermovement(&m2, o);
 		setmonstermovement(&m3, o);
-		set_diff_monster_paths(&m, &m2);
+		set_diff_monster_paths(&m, &m2);	//Repelling property of the monsters
 		set_diff_monster_paths(&m, &m3);
 		set_diff_monster_paths(&m2, &m3);
 		//Deciding the direction of pacman's movement  
@@ -238,7 +241,7 @@ int movepacman(obstacles *ok) {
 					setpacmanpos(&p, getpacmanposx(&p) - 1, getpacmanposy(&p));
 				}
 				else {
-					continuemovingpac(ok);
+					continuemovingpac(ok);		//if obstacle is there in the path of new given dir then coninue movement in the same dir
 				}
 				break;
 			case LEFT:
@@ -272,19 +275,20 @@ int movepacman(obstacles *ok) {
 				}
 				break;
 		}
+		//Checking the collision with the monster
 		if(checkformonster(&m, 1) == 1 || checkformonster(&m2, 1) == 1 || checkformonster(&m3, 1) == 1) {	//Checking for collision with monster
 			drawscore(check);
 			return LOOSE;
 		}
 			
 		check = checkforpoints(pts, points, &p);	//Checking if the pacman has collected the points.
-		drawscore(check);
+		drawscore(check);			//Score update
 		if(check) {
 			end--;
 		}
 		printpoints(pts, points);
 		printpacman(&p);
-		if(end == 0) {
+		if(end == 0) {		//Condition for winning the game
 			clear();
 			drawscore(check);
 			return WIN;
@@ -298,7 +302,7 @@ int movepacman(obstacles *ok) {
 	keypad(stdscr, FALSE);
 	return 0;
 }
-void setscreenpoints() {
+void setscreenpoints() {		//Setting the position of the points on the screen
 	int count, counter;
 	for(counter = 7; counter < column - 6; counter += 6) {
 		for(count = row /4 + 3; count < row - row / 4 ; count += 3) {
@@ -309,7 +313,7 @@ void setscreenpoints() {
 	end = points;
 	return;
 }
-void menuinflater() {
+void menuinflater() {		//Displaying the menu
 	ITEM **my_items;
 	int c, p = 0;
 	MENU *my_menu;
@@ -327,13 +331,18 @@ void menuinflater() {
 	while((c = getch()) != KEY_F(1)) {
 		switch(c) {
 			case KEY_DOWN:
-				p++;
-				menu_driver(my_menu, REQ_DOWN_ITEM);
+				if(p < 2) {
+					menu_driver(my_menu, REQ_DOWN_ITEM);
+					p++;
+				}
 				break;
 			case KEY_UP:
-				p--;
-				menu_driver(my_menu, REQ_UP_ITEM);
-			case 10:
+				if(p > 0) {
+					menu_driver(my_menu, REQ_UP_ITEM);
+					p--;
+				}
+				break;
+			case 10:		//On enter select the proper action
 				clear();
 				switch(p) {
 					case 0:
@@ -363,10 +372,11 @@ int startgame() {
 	initmonster(&m3	, &p);
 	initpacman(&p);							//initializing the pacman
 	placeobstacles(o);						//Setting the obstacle points in the obstacle object
-	if(load_game == 1) {
+	if(load_game == 1) {						//loading saved file
 		fp = fopen("Pacsave.dat", "r");
 		if(fp == NULL) {
 		printw("No saved file present.");
+		getch();
 		endwin();
 		exit(0);
 		}

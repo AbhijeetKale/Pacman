@@ -1,5 +1,0 @@
-#include <ncurses.h>
-#define MAX 
-typedef struct path {
-	int a[][]
-} path;

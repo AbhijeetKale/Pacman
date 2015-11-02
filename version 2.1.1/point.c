@@ -1,4 +1,5 @@
 #include "point.h"
+//printing the points on the screen.
 void printpoints(point *p, int n) {
 	int count;
 	init_pair(2, COLOR_BLACK, COLOR_GREEN);
@@ -24,12 +25,14 @@ int getpointposx(point *p) {
 int getpointposy(point *p) {
 	return p->posy;
 }
+//sets the position for the points.
 void setpointpos(point *p, int x, int y) {
 	p->posx = x;
 	p->posy = y;
 	p->activate = 1;
 	return;
 }
+//checks for point collection by pacman and prevents from printing again if the points have been taken
 int checkforpoints(point *p, int n, pacman *pac) {
 	int count, k = 0;
 	for(count = 0; count < n; count++) {
